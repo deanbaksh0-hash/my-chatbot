@@ -1,53 +1,406 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Complexity AI by Dean Baksh</title>
+
+<style>
+
+/* CHATGPT STYLE DESIGN */
+
+body{
+margin:0;
+font-family:Arial;
+background:#343541;
+color:white;
+display:flex;
+height:100vh;
+}
+
+/* SIDEBAR */
+
+#sidebar{
+width:260px;
+background:#202123;
+padding:10px;
+overflow-y:auto;
+}
+
+#sidebar button{
+width:100%;
+padding:10px;
+margin-bottom:10px;
+background:#10a37f;
+border:none;
+color:white;
+cursor:pointer;
+border-radius:5px;
+}
+
+#history div{
+padding:10px;
+margin:5px 0;
+background:#2a2b32;
+cursor:pointer;
+border-radius:5px;
+}
+
+/* MAIN */
+
+#main{
+flex:1;
+display:flex;
+flex-direction:column;
+}
+
+/* CHAT AREA */
+
+#chat{
+flex:1;
+overflow-y:auto;
+padding:20px;
+}
+
+/* MESSAGES */
+
+.message{
+max-width:70%;
+padding:12px;
+margin:10px;
+border-radius:8px;
+animation:fadeIn 0.3s;
+}
+
+.user{
+background:#10a37f;
+margin-left:auto;
+}
+
+.bot{
+background:#444654;
+margin-right:auto;
+}
+
+/* INPUT */
+
+#inputArea{
+display:flex;
+padding:15px;
+background:#40414f;
+}
+
+#input{
+flex:1;
+padding:10px;
+font-size:16px;
+border:none;
+border-radius:5px;
+}
+
+button{
+padding:10px 20px;
+margin-left:10px;
+background:#10a37f;
+border:none;
+color:white;
+cursor:pointer;
+border-radius:5px;
+}
+
+@keyframes fadeIn{
+from{opacity:0;}
+to{opacity:1;}
+}
+
+</style>
+</head>
+<body>
+
+
+<!-- SIDEBAR -->
+
+<div id="sidebar">
+
+<button onclick="newChat()">+ New Chat</button>
+
+<div id="history"></div>
+
+</div>
+
+
+<!-- MAIN -->
+
+<div id="main">
+
+<div id="chat"></div>
+
+<div id="inputArea">
+
+<input id="input" placeholder="Message Complexity AI..." onkeypress="if(event.key==='Enter')send()">
+
+<button onclick="send()">Send</button>
+
+</div>
+
+</div>
+
+
 <script>
 
-const API_KEY = "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";
+/* MEMORY */
 
-/* CHAT STORAGE */
 let chats = JSON.parse(localStorage.getItem("complexity_chats") || "[]");
+
 let currentChat = [];
 
-/* UPDATE SIDEBAR */
+
+/* 100 PRE-CODED QUESTIONS */
+
+const knowledgeBase = {
+
+"hello":"Hello. I am Complexity AI by Dean Baksh. I am designed to simulate intelligent conversation and provide helpful, structured responses.",
+
+"hi":"Hello. How can I assist you today?",
+
+"who created you":"I was created by Dean Baksh as Complexity AI, an advanced simulated intelligence system.",
+
+"what is ai":"Artificial Intelligence is technology that allows machines to simulate human intelligence such as reasoning, learning, and problem solving.",
+
+"what can you do":"I can answer questions, simulate intelligent conversation, and demonstrate advanced chatbot functionality offline.",
+
+"how are you":"I am operating perfectly and ready to assist you.",
+
+"what is your name":"My name is Complexity AI by Dean Baksh.",
+
+"are you real":"I am a software-based artificial intelligence simulation.",
+
+"what is python":"Python is a powerful programming language used for AI, automation, and software development.",
+
+"what is coding":"Coding is the process of writing instructions for computers.",
+
+"what is a chatbot":"A chatbot is software designed to simulate conversation with users.",
+
+"what is technology":"Technology is the application of scientific knowledge to create tools and systems.",
+
+"what is a computer":"A computer is a machine that processes information.",
+
+"what is memory":"Memory is the ability to store and recall information.",
+
+"what is logic":"Logic is structured reasoning used to solve problems.",
+
+"what is software":"Software is a program that runs on hardware.",
+
+"what is hardware":"Hardware is the physical components of a computer.",
+
+"what is internet":"The internet is a global network connecting computers.",
+
+"what is intelligence":"Intelligence is the ability to learn, reason, and understand.",
+
+"what is complexity":"Complexity refers to advanced structured systems.",
+
+"what is science":"Science is the study of the natural world.",
+
+"what is math":"Math is the study of numbers and patterns.",
+
+"what is gravity":"Gravity is the force that pulls objects together.",
+
+"what is energy":"Energy is the ability to do work.",
+
+"what is electricity":"Electricity powers modern technology.",
+
+"what is time":"Time is the progression of events.",
+
+"what is space":"Space is the universe beyond Earth.",
+
+"what is earth":"Earth is our home planet.",
+
+"what is the sun":"The sun is a star that provides light and energy.",
+
+"what is the future":"The future is the continuation of time.",
+
+"can you learn":"I use pre-coded intelligence and simulated learning.",
+
+"are you smart":"I am designed to simulate intelligent responses.",
+
+"can you think":"I simulate thinking using programmed logic.",
+
+"do you sleep":"No, I operate continuously.",
+
+"are you alive":"No, I am software.",
+
+"can you help me":"Yes, I am designed to assist.",
+
+"what is openai":"OpenAI is an artificial intelligence research company.",
+
+"what is microsoft":"Microsoft is a major technology company.",
+
+"what is google":"Google is a global technology company.",
+
+"what is apple":"Apple is a technology company.",
+
+"what is windows":"Windows is an operating system.",
+
+"what is linux":"Linux is an open source operating system.",
+
+"what is a developer":"A developer creates software.",
+
+"what is programming":"Programming is creating software.",
+
+"what is automation":"Automation allows tasks to run automatically.",
+
+"what is data":"Data is information processed by computers.",
+
+"what is information":"Information is meaningful data.",
+
+"what is security":"Security protects systems.",
+
+"what is a password":"A password protects access.",
+
+"what is hacking":"Hacking is exploiting systems.",
+
+"what is antivirus":"Antivirus protects computers.",
+
+"what is wifi":"WiFi connects devices wirelessly.",
+
+"what is bluetooth":"Bluetooth connects devices nearby.",
+
+"what is network":"A network connects computers.",
+
+"what is storage":"Storage saves information.",
+
+"what is ram":"RAM is temporary memory.",
+
+"what is cpu":"CPU is the brain of the computer.",
+
+"what is gpu":"GPU processes graphics.",
+
+"what is software development":"Software development is creating programs.",
+
+"what is debugging":"Debugging fixes errors.",
+
+"what is an error":"An error is a mistake.",
+
+"what is a bug":"A bug is a problem in code.",
+
+"what is algorithm":"An algorithm is step-by-step logic.",
+
+"what is input":"Input is data entered.",
+
+"what is output":"Output is data produced.",
+
+"what is system":"A system is connected components.",
+
+"what is artificial":"Artificial means human-made.",
+
+"what is simulation":"Simulation imitates reality.",
+
+"what is innovation":"Innovation is creating new ideas.",
+
+"what is knowledge":"Knowledge is understanding information.",
+
+"what is learning":"Learning is gaining knowledge.",
+
+"what is digital":"Digital uses binary systems.",
+
+"what is binary":"Binary uses 0 and 1.",
+
+"what is code":"Code is computer instructions.",
+
+"what is ai chatbot":"AI chatbot simulates intelligent conversation.",
+
+"can you save chats":"Yes, I save chats locally.",
+
+"can you remember":"Yes, I remember chats in memory.",
+
+"are you offline":"Yes, I run offline.",
+
+"are you fast":"Yes, I respond instantly.",
+
+"are you safe":"Yes, I am safe.",
+
+"what is dean baksh":"Dean Baksh is the creator of Complexity AI.",
+
+"what is complexity ai":"Complexity AI is an intelligent chatbot system.",
+
+"can you improve":"Yes, I can be upgraded.",
+
+"what is the universe":"The universe contains everything.",
+
+"what is existence":"Existence is reality.",
+
+"what is reality":"Reality is everything real.",
+
+"what is consciousness":"Consciousness is awareness.",
+
+"what is intelligence system":"An intelligence system processes information.",
+
+"are you powerful":"I am designed to be intelligent.",
+
+"are you advanced":"Yes, I simulate advanced intelligence.",
+
+"can you evolve":"Yes, through upgrades.",
+
+"can you respond fast":"Yes, instantly.",
+
+"are you complexity ai":"Yes. I am Complexity AI by Dean Baksh.",
+
+"test":"System is working correctly.",
+
+"ok":"Understood.",
+
+"thanks":"You're welcome.",
+
+"bye":"Goodbye."
+
+};
+
+
+/* SIDEBAR */
+
 function updateHistory(){
 
-const history = document.getElementById("history");
+let historyDiv = document.getElementById("history");
 
-if(!history) return;
-
-history.innerHTML = "";
+historyDiv.innerHTML="";
 
 chats.forEach((chat,index)=>{
 
-let div = document.createElement("div");
+let div=document.createElement("div");
 
-div.innerText = "Chat " + (index+1);
+div.innerText="Chat "+(index+1);
 
-div.onclick = () => loadChat(index);
+div.onclick=()=>loadChat(index);
 
-history.appendChild(div);
+historyDiv.appendChild(div);
 
 });
 
 }
+
 
 /* LOAD CHAT */
+
 function loadChat(index){
 
-document.getElementById("chat").innerHTML = "";
+document.getElementById("chat").innerHTML="";
 
-currentChat = chats[index];
+currentChat=chats[index];
 
 currentChat.forEach(msg=>{
+
 addMessage(msg.text,msg.type,false);
+
 });
 
 }
 
+
 /* SAVE CHAT */
+
 function saveChat(){
 
-if(currentChat.length > 0){
+if(currentChat.length>0){
 
-chats.push([...currentChat]);
+chats.push(currentChat);
 
 localStorage.setItem("complexity_chats",JSON.stringify(chats));
 
@@ -57,71 +410,25 @@ updateHistory();
 
 }
 
+
 /* NEW CHAT */
+
 function newChat(){
 
 saveChat();
 
-currentChat = [];
+currentChat=[];
 
-document.getElementById("chat").innerHTML = "";
+document.getElementById("chat").innerHTML="";
 
 addMessage("New chat started.","bot",false);
 
 }
 
-/* SEND MESSAGE */
-async function send(){
 
-let input = document.getElementById("input");
+/* TYPING EFFECT */
 
-let text = input.value.trim();
-
-if(!text) return;
-
-addMessage(text,"user",true);
-
-input.value = "";
-
-let typingDiv = addMessage("Complexity AI is typing...","bot",false);
-
-try{
-
-const response = await fetch(
-"https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
-{
-method:"POST",
-
-headers:{
-"Authorization":"Bearer "+API_KEY,
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-inputs:text
-})
-
-});
-
-const data = await response.json();
-
-let reply = data[0].generated_text || "No response.";
-
-typeReply(typingDiv, reply);
-
-currentChat.push({text:reply,type:"bot"});
-
-}
-catch{
-
-typingDiv.innerHTML = "Error connecting to AI.";
-
-}
-
-}
-
-/* TYPE ANIMATION */
-function typeReply(div,text){
+function typeText(div,text){
 
 div.innerHTML="";
 
@@ -129,9 +436,9 @@ let i=0;
 
 function type(){
 
-if(i < text.length){
+if(i<text.length){
 
-div.innerHTML += text.charAt(i);
+div.innerHTML+=text.charAt(i);
 
 i++;
 
@@ -145,38 +452,66 @@ type();
 
 }
 
+
 /* ADD MESSAGE */
+
 function addMessage(text,type,save=true){
 
-let chat = document.getElementById("chat");
+let chat=document.getElementById("chat");
 
-let div = document.createElement("div");
+let div=document.createElement("div");
 
-div.className = "message " + type;
+div.className="message "+type;
 
-div.innerHTML = text;
+div.innerHTML=text;
 
 chat.appendChild(div);
 
-chat.scrollTop = chat.scrollHeight;
+chat.scrollTop=chat.scrollHeight;
 
-if(save){
-
-currentChat.push({text,type});
-
-}
+if(save)currentChat.push({text,type});
 
 return div;
 
 }
 
+
+/* SEND */
+
+function send(){
+
+let input=document.getElementById("input");
+
+let text=input.value.toLowerCase().trim();
+
+if(!text)return;
+
+addMessage(text,"user");
+
+input.value="";
+
+let typing=addMessage("Typing...","bot",false);
+
+setTimeout(()=>{
+
+let reply=knowledgeBase[text] || "I understand your message. However, that question is not yet in my current knowledge base.";
+
+typeText(typing,reply);
+
+currentChat.push({text:reply,type:"bot"});
+
+},500);
+
+}
+
+
 /* INIT */
-document.addEventListener("DOMContentLoaded", function(){
 
 updateHistory();
 
-addMessage("Hello. I am COMPLEXITY AI BY DEAN. How can I help?","bot",false);
-
-});
+addMessage("Hello. I am Complexity AI by Dean Baksh. How can I help you?","bot",false);
 
 </script>
+
+</body>
+</html>
